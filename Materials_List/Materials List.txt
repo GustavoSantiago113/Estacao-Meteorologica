@@ -1,0 +1,43 @@
+1x AHT10;
+
+2x Sensor magnético Reed Switch;
+
+2x Resistor 1kΩ;
+
+1x LDR 5 mm;
+
+1x Resistor 10kΩ;
+
+1x RTC DS3231 com bateria;
+
+1X LCD1602 + I2C (LCM1602);
+
+1X Módulo SD Card;
+
+1x Arduino Nano;
+
+1x Cartão SD;
+
+1x Diodo 1n4007;
+
+1x Capacitor de 100μF e 16 V;
+
+1x Clip de bateria 9V;
+
+1x Indicador de carga de bateria;
+
+1x Bateria recarregável de 9 V e 450 mAh (mínimo);
+
+1x Painel solar de 12 Wp (mínimo), 9 V e 2A ou 2x Painéis solares de 12Wp(mínimo), 9 V e 1A.
+
+Cabos jumper macho-macho e macho-fêmea;
+
+2x Ímãs pequenos;
+
+Estrutura de suporte;
+
+Placa de circuito;
+
+Estruturas 3D (com rolamento e eixo para o anemômetro);
+
+Cabo para passar a ligação ao Arduino;
