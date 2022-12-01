@@ -1,8 +1,4 @@
 #include "Wire.h";
-#include "LiquidCrystal_I2C.h";
- 
-// Define o endereço utilizado pelo Adaptador I2C
-LiquidCrystal_I2C lcd(0x27, 16, 2);
  
 // Constantes:
 const int REED = 2;
@@ -13,7 +9,7 @@ int old_val = 0;
 int REEDCOUNT = 0;
 
 const float pi = 3.14159265;
-int radius = 65;
+float radius = 0.065;
 float windspeed = 0;
  
 void setup()
@@ -24,31 +20,20 @@ void setup()
   // Initializa a comunicaçao serial:
   Serial.begin(9600);
  
-  //Inicializa o LCD e o backlight
-  lcd.init();
-  lcd.backlight();
- 
-  lcd.setCursor(0, 0);      // Posiciona o cursor
-  lcd.print("Velocidade ");    // Escreve no LCD "Velocidade: "
 }
  
 void loop() 
 {
   // Imprime no Monitor Serial
-    superDelay(60000);
-    windspeed = ((2 * pi * REEDCOUNT) / 60) * radius/1000;
+    superDelay(5000);
+    windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
     Serial.print("Contagem: ");
     Serial.print(REEDCOUNT);
     Serial.println(" pulsos");
     Serial.print("Velocidade do vento: ");
     Serial.print(windspeed);
     Serial.println(" m/s");
- 
-    // Imprime as informações do Display
-    lcd.setCursor(0, 1);         //Posiciona o cursor
-    lcd.print(windspeed); //Escreve o valor em milímetros
-    lcd.setCursor(13, 1);        //Posiciona o cursor
-    lcd.print("m/s");             //Escreve no LCD "mm"
+
     REEDCOUNT = 0;
 }
 
