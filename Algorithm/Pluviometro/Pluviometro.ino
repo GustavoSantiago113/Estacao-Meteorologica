@@ -5,7 +5,7 @@
 File myFile;
 
 // Constants:
-const int REED = 5; //Rain "sensor" pin
+const int REED = 3; //Rain "sensor" pin
 const int pinCS = 8; //SD card pin
 
 // Variables:

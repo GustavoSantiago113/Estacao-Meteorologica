@@ -1,146 +1,188 @@
-// Autor: Gustavo Nocera Santiago
-#include <Adafruit_AHT10.h>; //INCLUI A BIBLIOTECA DHT
-#include <Wire.h> // Inclui a biblioteca Wire
-#include <LiquidCrystal_I2C.h> // Usando a biblioteca LiquidCrystal I2C
-#include <SD.h> //Biblioteca do cartão SD
+// Author: Gustavo Nocera Santiago
+
+// Including Libraries
+#include <AHT10.h>
+#include <Wire.h>
+#include <SD.h>
 #include <SPI.h>
 #include <RTClib.h>
 
-Adafruit_AHT10 aht;
-RTC_DS3231 rtc;
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configura endereço I2C e display com 16 caracteres e 2 linhas 
-
-#define LDR A0 //Pino em que está o LDR
-
-//VARIÁVEIS
-const int REED = 5; //PINO EM QUE ESTÁ O PINO REED SWITCH
-int val = 0; //INICIALIZA OS VALORES QUE SERÃO USADOS PARA CONTAGEM DOS PULSOS DE CHUVA 
+// Anemomether variables
+const int REED = 2;
+int val = 0;
 int old_val = 0;
 int REEDCOUNT = 0;
-int chuva = 0; //Armazena o valor da chuva acumulada
-int vol = 2.83; //Valor do volume da bascula (em mm)
-
-const int REEDv = 2;
-int valv = 0;
-int old_valv = 0;
-int REEDCOUNTv = 0;
-const float p = 3.14159265;
-int raio = 65;
+const float pi = 3.14159265;
+float radius = 0.065;
 float windspeed = 0;
 
-int luminosidade; //Variável para armazenar o valor da luminosidade
-int energia;
+// Temp and Humi Class
+AHT10Class AHT10;
+float temp;
+float umi;
 
+// SD Card Variables
 File myFile;
-int pinoCS = 10;
+const int pinCS = 8;
 
-void setup() 
-{
+// Luminosity variables
+#define LDR A0
+int light;
+int energy;
+
+// Clock class
+RTC_DS3231 rtc;
+
+// Pluviomether variables
+const int REEDR = 3;
+int valR = 0;
+int old_valR = 0;
+int REEDCOUNTR = 0;
+float rain = 0.00;
+
+void setup(){
   
   Serial.begin(9600);
-  pinMode (REED, INPUT_PULLUP); //DIZ QUE O PINO DO REED É DE ENTRADA
-  pinMode(5, INPUT);        //configura o digital 5 como entrada para o reedswitch do vento
-  digitalWrite(5, HIGH);    //internall pull-up active
-  pinMode (REEDv, INPUT_PULLUP);
-  pinMode(2, INPUT);
-  rtc.begin();
-  rtc.adjust(DateTime(2021, 10, 26, 15, 24, 00)); //(ANO), (MÊS), (DIA), (HORA), (MINUTOS), (SEGUNDOS)
-  lcd.init();
-  lcd.backlight();
-  aht.begin();
-  pinMode(pinoCS,OUTPUT);
-  SD.begin(pinoCS);
+  
+  // Pluviomether
+  pinMode(REEDR, INPUT_PULLUP);
+
+  // Anemomether
+  pinMode(REED, INPUT_PULLUP);
+
+  // SD Card
+  pinMode(10, OUTPUT);
+  pinMode(pinCS, OUTPUT);
+
+  if (!SD.begin(pinCS)) {
+    Serial.println("Card failed, or not present");
+    digitalWrite(LED_BUILTIN, HIGH);
+    return;
+  }
+  Serial.println("card initialized.");
+
+  // Clock
+  if (! rtc.begin())
+  {
+    Serial.println("Módulo RTC no encontrado!");
+    digitalWrite(LED_BUILTIN, HIGH);
+    while(1);
+    
+  }
+  
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //Upload code once with this line uncommented so the clock is adjusted, then coment this line and upload again
+  
+  // Temp and Humi
+  Wire.begin();
+
+  if(AHT10.begin(eAHT10Address_Low)){
+    Serial.println("Init AHT10 Success!");
+  } 
+  else{
+    Serial.println("Init AHT10 Failed!");
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
   
 }
 
-void loop() 
-{
-     
-     superDelay(60000);
-     windspeed = ((2 * p * REEDCOUNTv) / 60) * raio/1000;
-     chuva = REEDCOUNT / vol;
-     sensors_event_t humidity, temp;
-     aht.getEvent(&humidity,&temp);
-     luminosidade = analogRead(LDR);
-     energia = map(luminosidade, 0, 1023, 0, 100);
-     lcd.cursor(); //Liga o cursor
-     lcd.setCursor(0,0); //Seleciona a coluna 0 e linha 0
-     lcd.print(humidity.relative_humidity);
-     lcd.setCursor(5,0); //Seleciona a coluna 5 e linha 0
-     lcd.print("%");
-     lcd.setCursor(7,0); //Seleciona a coluna 7 e linha 0
-     lcd.print(temp.temperature);
-     lcd.setCursor(13,0); //Seleciona a coluna 12 e linha 0
-     lcd.print("C");
-     lcd.setCursor(0,1); //Seleciona a coluna 0 e linha 1
-     lcd.print(windspeed);
-     lcd.setCursor(4,1); //Seleciona a coluna 4 e linha 1
-     lcd.print("m/s");
-     lcd.setCursor(8,1); //Seleciona a coluna 9 e linha 1
-     lcd.print(chuva);
-     lcd.setCursor(14,1); //Seleciona a coluna 9 e linha 1
-     lcd.print("mm"); //Seleciona a coluna 9 e linha 1
-     DateTime fecha = rtc.now();
-     myFile = SD.open("Meteorologia.txt", FILE_WRITE);
-     myFile.print(fecha.day());
-     myFile.print("/");
-     myFile.print(fecha.month());
-     myFile.print("/");
-     myFile.print(fecha.year());
-     myFile.print(",");
-     myFile.print(fecha.hour());
-     myFile.print(":");
-     myFile.print(fecha.minute());
-     myFile.print(",");
-     myFile.print(chuva);
-     myFile.print(",");
-     myFile.print(humidity.relative_humidity);
-     myFile.print(",");
-     myFile.print(temp.temperature);
-     myFile.print(",");
-     myFile.print(windspeed);
-     myFile.print(",");
-     myFile.println(energia);
-     myFile.close();
-     REEDCOUNTv = 0;  
-       
+void loop(){
+  
+  superDelay(60000);
+  
+  // Anemomether
+  windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
+  REEDCOUNT = 0;
+
+  // Luminosity
+  light = analogRead(LDR);
+  energy = map(light, 0, 1023, 0, 100);
+
+  // Temp & Umi
+  umi = AHT10.GetHumidity();
+  temp = AHT10.GetTemperature();
+
+  // Pluviomether
+  rain = REEDCOUNTR / 11.00;
+
+  // Clock
+  DateTime fecha = rtc.now();
+  
+  // Saving everything on SD Card
+  myFile = SD.open("WSKSU.txt", FILE_WRITE);
+  myFile.print(fecha.day());
+  myFile.print("/");
+  myFile.print(fecha.month());
+  myFile.print("/");
+  myFile.print(fecha.year());
+  myFile.print(",");
+  myFile.print(fecha.hour());
+  myFile.print(":");
+  myFile.print(fecha.minute());
+  myFile.print(",");
+  myFile.print(rain);
+  myFile.print(",");
+  myFile.print(windspeed);
+  myFile.print(",");
+  myFile.print(energy);
+  myFile.print(",");
+  myFile.print(umi);
+  myFile.print(",");
+  myFile.println(temp);
+  myFile.close();
+
+  Serial.print(fecha.day());
+  Serial.print("/");
+  Serial.print(fecha.month());
+  Serial.print("/");
+  Serial.print(fecha.year());
+  Serial.print(",");
+  Serial.print(fecha.hour());
+  Serial.print(":");
+  Serial.print(fecha.minute());
+  Serial.print(",");
+  Serial.print(rain);
+  Serial.print(",");
+  Serial.print(windspeed);
+  Serial.print(",");
+  Serial.print(energy);
+  Serial.print(",");
+  Serial.print(umi);
+  Serial.print(",");
+  Serial.println(temp);
+  
 }
 
+// Function to make anemomether works while other processes are happening
 void superDelay(unsigned long tempoDeEspera) 
 {
-  
-  unsigned long inicio = millis(); // ANOTA O TEMPO QUE INICIOU A FUNÇÃO
+  unsigned long inicio = millis(); 
   while (millis() - inicio < tempoDeEspera) 
-  { // LAÇO PARA O ARDUINO ESPERAR O TEMPO PASSAR
-    // === COLOQUE SUA LÓGICA AQUI ===
-    val = digitalRead(REED); //VERIFICA O ESTADO DO PINO REED (ALTO OU BAIXO)
-    if ((val == LOW) && (old_val == HIGH)) // Verefica se o Status mudou
-    {   
-      delay(70);                   // Atraso colocado para lidar com qualquer "salto" no switch.
-      REEDCOUNT = REEDCOUNT + 1;   // Adiciona 1 à contagem de pulsos
-     old_val = val;              //Iguala o valor antigo com o atual
-    } 
+  { 
+    // Wind
+    val = digitalRead(REED);     
+     if ((val == LOW) && (old_val == HIGH)) 
+     {   
+      delay(70);                   
+      REEDCOUNT = REEDCOUNT + 1;   
+      old_val = val;              
+     }
+   
     else 
     {
-      old_val = val;              //Se o status não mudou, faça nada
+      old_val = val;
     }
+
+    // Rain
+    valR = digitalRead(REEDR);
     
-    //LÊ E ARMAZENA OS VALORES DE UMIDADE E TEMPERATURA;
-    
-    valv = digitalRead(REEDv);      // Lê o Status do Reed Switch
-    if ((valv == LOW) && (old_valv == HIGH)) 
-    {   // Verefica se o Status mudou
-      delay(70);                   // Atraso colocado para lidar com qualquer "salto" no switch.
-      REEDCOUNTv = REEDCOUNTv + 1;   // Adiciona 1 à cntagem de pulsos
-      old_valv = valv;              //Iguala o valor antigo com o atual
+    if ((valR == LOW) && (old_valR == HIGH)) {
+      delay(100);
+      REEDCOUNTR = REEDCOUNTR + 1;
+      old_valR = valR;
     }
- 
-    else 
-    {
-      old_valv = valv;              //If the status hasn't changed then do nothing
+    else {
+      old_valR = valR;
     }
     
   }
-    // FIM DA LÓGICA DENTRO DO SUPERDELAY
 }
-  
