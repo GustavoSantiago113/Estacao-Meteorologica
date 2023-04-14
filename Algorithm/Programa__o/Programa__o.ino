@@ -50,11 +50,7 @@ void setup(){
   // Anemomether
   pinMode(REED, INPUT_PULLUP);
 
-  // SD Card
-  pinMode(10, OUTPUT);
-  pinMode(pinCS, OUTPUT);
-
-  if (!SD.begin(pinCS)) {
+  if (!SD.begin(10)) {
     Serial.println("Card failed, or not present");
     digitalWrite(LED_BUILTIN, HIGH);
     return;
@@ -87,7 +83,8 @@ void setup(){
 
 void loop(){
   
-  superDelay(60000);
+  superDelay(300000);
+  //superDelay(1000);
   
   // Anemomether
   windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
