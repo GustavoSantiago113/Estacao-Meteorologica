@@ -38,6 +38,6 @@ AHT10.GetHumidity() + "%");
 Serial.println(String("") + "Temperature(℃):\t"
 + AHT10.GetTemperature() + "℃");
 
-  delay(1000);
+delay(1000);
 
 }

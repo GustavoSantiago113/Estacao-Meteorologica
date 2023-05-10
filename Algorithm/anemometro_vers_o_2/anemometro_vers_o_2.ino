@@ -1,7 +1,7 @@
 #include "Wire.h";
  
 // Constantes:
-const int REED = 2;
+const int REED = 3;
  
 // Variáveis:
 int val = 0;

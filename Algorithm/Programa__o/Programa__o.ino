@@ -8,7 +8,7 @@
 #include <RTClib.h>
 
 // Anemomether variables
-const int REED = 2;
+const int REED = 3;
 int val = 0;
 int old_val = 0;
 int REEDCOUNT = 0;
@@ -23,7 +23,7 @@ float umi;
 
 // SD Card Variables
 File myFile;
-const int pinCS = 8;
+const int pinCS = 10;
 
 // Luminosity variables
 #define LDR A0
@@ -34,7 +34,7 @@ int energy;
 RTC_DS3231 rtc;
 
 // Pluviomether variables
-const int REEDR = 3;
+const int REEDR = 2;
 int valR = 0;
 int old_valR = 0;
 int REEDCOUNTR = 0;
@@ -50,9 +50,10 @@ void setup(){
   // Anemomether
   pinMode(REED, INPUT_PULLUP);
 
-  if (!SD.begin(10)) {
+  // SD Card
+  pinMode(pinCS, OUTPUT);
+  if (!SD.begin(8)) {
     Serial.println("Card failed, or not present");
-    digitalWrite(LED_BUILTIN, HIGH);
     return;
   }
   Serial.println("card initialized.");
@@ -61,7 +62,6 @@ void setup(){
   if (! rtc.begin())
   {
     Serial.println("Módulo RTC no encontrado!");
-    digitalWrite(LED_BUILTIN, HIGH);
     while(1);
     
   }
@@ -76,7 +76,6 @@ void setup(){
   } 
   else{
     Serial.println("Init AHT10 Failed!");
-    digitalWrite(LED_BUILTIN, HIGH);
   }
   
 }

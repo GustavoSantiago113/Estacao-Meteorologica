@@ -13,7 +13,8 @@ void setup(){
     while(1);
     
   }
-  //rtc.adjust(DateTime(2023, 2, 24, 14, 30, 0));
+  
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   
 }
  
