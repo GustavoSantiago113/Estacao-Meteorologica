@@ -63,10 +63,10 @@ The final .txt file is a line per reading with date, hour and sensors' data, all
 | Structure | PVC pipe | 10cm x 2.66cm diameter |
 | Structure | T junction / Reduction of 4.83cm to 3.34cm diameter | 2 |
 | Structure | T junction / Reduction of 4.83cm to 2.66cm diameter | 1 |
-| Energy | Capacitor of 100uF and 16V | 1 |
+| Energy | Charger Module | 1 |
 | Energy | Diode 1n4007 | 1 |
 | Energy | Panel with minimum 4Wp, 0.48A and 9V | 1 |
-| Energy | Rechargeable battery of 0.3 Ah | 1 |
+| Energy | Rechargeable battery of 0.3 Ah and 9V | 1 |
 | Energy | Wires | X |
 | Light Sensor | LDR 5mm | 1 |
 | Light Sensor | 1k Ohm resistor | 1 |
@@ -78,11 +78,7 @@ The final .txt file is a line per reading with date, hour and sensors' data, all
 ---
 
 ## Circuit Board
-A circuit board were made to make everything more organized and avoid wrong connections and wires out of place. The schema of the circuit board can be seen bellow:
-
-![Circuit Board Schema](Circuit_Board/Board_Schema.jpg)
-
-The .dxf file containing the circuit board's draw is in the folder Circuit_Board.
+A circuit board were made to make everything more organized and avoid wrong connections and wires out of place. The .dxf file containing the circuit board's draw is in the folder Circuit_Board.
 
 ---
 
