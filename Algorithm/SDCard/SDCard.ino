@@ -1,12 +1,12 @@
 #include <SD.h>
 #include <SPI.h>
+#include <RTClib.h>
+ 
+RTC_DS3231 rtc;
  
 File myFile;
  
 const int pinoCS = 10; // Pin 53 para Mega / Pin 10 para UNO
-#define LDR A0 //Pino em que está o LDR
-int luminosidade; //Variável para armazenar o valor da luminosidade
-int energia;
 
 void setup() 
 { // Executado uma vez quando ligado o Arduino
@@ -19,20 +19,45 @@ if (!SD.begin(8)) {
     digitalWrite(LED_BUILTIN, HIGH);
     return;
   }SD.begin(8);
+
+if (! rtc.begin())
+  {
+    Serial.println("Módulo RTC no encontrado!");
+    while(1);
+    
+  }
+  
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
  
 }
  
 void loop() 
 
 {
-  luminosidade = analogRead(LDR);
-  energia = map(luminosidade, 0, 1023, 0.0, 100.00);
   myFile = SD.open("test.txt", FILE_WRITE);
-  myFile.print(energia);
-  myFile.println("%");
+  DateTime fecha = rtc.now();
+  myFile.print(fecha.day());
+  myFile.println("/");
+  myFile.print(fecha.month());
+  myFile.println("/");
+  myFile.print(fecha.year());
+  myFile.print(",");
+  myFile.print(fecha.hour());
+  myFile.print(":");
+  myFile.println(fecha.minute());
+
   myFile.close();
-  Serial.print(energia);
-  Serial.println(" %");
+
+  Serial.print(fecha.day());
+  Serial.print("/");
+  Serial.print(fecha.month());
+  Serial.print("/");
+  Serial.print(fecha.year());
+  Serial.print(",");
+  Serial.print(fecha.hour());
+  Serial.print(":");
+  Serial.println(fecha.minute());
+
   delay(1000);
   
 }
