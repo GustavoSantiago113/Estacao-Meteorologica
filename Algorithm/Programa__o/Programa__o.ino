@@ -87,7 +87,7 @@ void loop(){
   //superDelay(30000);
   
   // Anemomether
-  windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
+  windspeed = (2 * pi * REEDCOUNT * 60 * radius * 12 / 1000)/60;
   REEDCOUNT = 0;
 
   // Luminosity
