@@ -28,7 +28,6 @@ const int pinCS = 10;
 // Luminosity variables
 #define LDR A0
 int light;
-int energy;
 
 // Clock class
 RTC_DS3231 rtc;
@@ -87,12 +86,11 @@ void loop(){
   //superDelay(30000);
   
   // Anemomether
-  windspeed = (2 * pi * REEDCOUNT * 60 * radius * 12 / 1000)/60;
+  windspeed = 2 * pi * radius * (REEDCOUNT / (60 * 5));
   REEDCOUNT = 0;
 
   // Luminosity
   light = analogRead(LDR);
-  energy = map(light, 0, 1023, 0, 100);
 
   // Temp & Umi
   umi = AHT10.GetHumidity();
@@ -120,7 +118,7 @@ void loop(){
   myFile.print(",");
   myFile.print(windspeed);
   myFile.print(",");
-  myFile.print(energy);
+  myFile.print(light);
   myFile.print(",");
   myFile.print(umi);
   myFile.print(",");
@@ -141,7 +139,7 @@ void loop(){
   Serial.print(",");
   Serial.print(windspeed);
   Serial.print(",");
-  Serial.print(energy);
+  Serial.print(light);
   Serial.print(",");
   Serial.print(umi);
   Serial.print(",");
