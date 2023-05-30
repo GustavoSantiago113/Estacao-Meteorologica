@@ -67,7 +67,8 @@ void setup(){
   }
   
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //Upload code once with this line uncommented so the clock is adjusted, then coment this line and upload again
-  
+  //rtc.adjust(DateTime(2023, 5 , 24, 14, 45, 00)); //Upload code once with this line uncommented so the clock is adjusted, then coment this line and upload again
+
   // Temp and Humi
   Wire.begin();
 
@@ -83,10 +84,10 @@ void setup(){
 void loop(){
   
   superDelay(300000);
-  //superDelay(1000);
+  //superDelay(30000);
   
   // Anemomether
-  windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
+  windspeed = (2 * pi * REEDCOUNT * 60 * radius * 12 / 1000)/60;
   REEDCOUNT = 0;
 
   // Luminosity
