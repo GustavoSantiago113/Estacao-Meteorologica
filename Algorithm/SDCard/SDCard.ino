@@ -16,9 +16,8 @@ pinMode(pinoCS, OUTPUT); // Declara pinoSS como saída
 
 if (!SD.begin(8)) {
     Serial.println("Card failed, or not present");
-    digitalWrite(LED_BUILTIN, HIGH);
     return;
-  }SD.begin(8);
+  }
 
 if (! rtc.begin())
   {
@@ -34,17 +33,21 @@ if (! rtc.begin())
 void loop() 
 
 {
+  rtc.begin();
+  SD.begin(8);
   myFile = SD.open("test.txt", FILE_WRITE);
   DateTime fecha = rtc.now();
   myFile.print(fecha.day());
-  myFile.println("/");
+  myFile.print("/");
   myFile.print(fecha.month());
-  myFile.println("/");
+  myFile.print("/");
   myFile.print(fecha.year());
   myFile.print(",");
   myFile.print(fecha.hour());
   myFile.print(":");
-  myFile.println(fecha.minute());
+  myFile.print(fecha.minute());
+  myFile.print(",");
+  myFile.println("GustavoGostoso");
 
   myFile.close();
 
@@ -56,8 +59,10 @@ void loop()
   Serial.print(",");
   Serial.print(fecha.hour());
   Serial.print(":");
-  Serial.println(fecha.minute());
+  Serial.print(fecha.minute());
+  Serial.print(",");
+  Serial.println("GustavoGostoso");
 
-  delay(1000);
+  delay(60000);
   
 }
