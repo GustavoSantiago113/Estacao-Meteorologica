@@ -6,6 +6,7 @@
 #include <SD.h>
 #include <SPI.h>
 #include <RTClib.h>
+#include "ArduinoSTL.h"
 
 // Anemomether variables
 const int REED = 3;
@@ -39,6 +40,9 @@ int valR = 0;
 int old_valR = 0;
 int REEDCOUNTR = 0;
 float rain = 0.00;
+
+bool isLightAboveThreshold = false;
+std::vector<String> bufferedData;
 
 void setup(){
   
@@ -82,8 +86,24 @@ void setup(){
 
 void loop(){
   
+<<<<<<< Updated upstream
   superDelay(300000);
   //superDelay(1000);
+=======
+  if (analogRead(LDR > 700)){
+    superDelay(3600000);
+    // Anemomether
+    windspeed = 2 * pi * radius * (REEDCOUNT / (60 * 60));
+    readAndSave();
+  }
+  else{
+    superDelay(7200000);
+    // Anemomether
+    windspeed = 2 * pi * radius * (REEDCOUNT / (60 * 120));
+    readAndSave();
+  }
+  
+>>>>>>> Stashed changes
   
   // Anemomether
   windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
