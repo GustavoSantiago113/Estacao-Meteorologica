@@ -6,7 +6,6 @@
 #include <SD.h>
 #include <SPI.h>
 #include <RTClib.h>
-#include "ArduinoSTL.h"
 
 // Anemomether variables
 const int REED = 3;
@@ -40,9 +39,6 @@ int valR = 0;
 int old_valR = 0;
 int REEDCOUNTR = 0;
 float rain = 0.00;
-
-bool isLightAboveThreshold = false;
-std::vector<String> bufferedData;
 
 void setup(){
   
@@ -86,10 +82,6 @@ void setup(){
 
 void loop(){
   
-<<<<<<< Updated upstream
-  superDelay(300000);
-  //superDelay(1000);
-=======
   if (analogRead(LDR > 700)){
     superDelay(3600000);
     // Anemomether
@@ -102,103 +94,5 @@ void loop(){
     windspeed = 2 * pi * radius * (REEDCOUNT / (60 * 120));
     readAndSave();
   }
-  
->>>>>>> Stashed changes
-  
-  // Anemomether
-  windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
-  REEDCOUNT = 0;
 
-  // Luminosity
-  light = analogRead(LDR);
-  energy = map(light, 0, 1023, 0, 100);
-
-  // Temp & Umi
-  umi = AHT10.GetHumidity();
-  temp = AHT10.GetTemperature();
-
-  // Pluviomether
-  rain = REEDCOUNTR / 11.00;
-
-  // Clock
-  DateTime fecha = rtc.now();
-  
-  // Saving everything on SD Card
-  myFile = SD.open("WSKSU.txt", FILE_WRITE);
-  myFile.print(fecha.day());
-  myFile.print("/");
-  myFile.print(fecha.month());
-  myFile.print("/");
-  myFile.print(fecha.year());
-  myFile.print(",");
-  myFile.print(fecha.hour());
-  myFile.print(":");
-  myFile.print(fecha.minute());
-  myFile.print(",");
-  myFile.print(rain);
-  myFile.print(",");
-  myFile.print(windspeed);
-  myFile.print(",");
-  myFile.print(energy);
-  myFile.print(",");
-  myFile.print(umi);
-  myFile.print(",");
-  myFile.println(temp);
-  myFile.close();
-
-  Serial.print(fecha.day());
-  Serial.print("/");
-  Serial.print(fecha.month());
-  Serial.print("/");
-  Serial.print(fecha.year());
-  Serial.print(",");
-  Serial.print(fecha.hour());
-  Serial.print(":");
-  Serial.print(fecha.minute());
-  Serial.print(",");
-  Serial.print(rain);
-  Serial.print(",");
-  Serial.print(windspeed);
-  Serial.print(",");
-  Serial.print(energy);
-  Serial.print(",");
-  Serial.print(umi);
-  Serial.print(",");
-  Serial.println(temp);
-  
-}
-
-// Function to make anemomether works while other processes are happening
-void superDelay(unsigned long tempoDeEspera) 
-{
-  unsigned long inicio = millis(); 
-  while (millis() - inicio < tempoDeEspera) 
-  { 
-    // Wind
-    val = digitalRead(REED);     
-     if ((val == LOW) && (old_val == HIGH)) 
-     {   
-      delay(70);                   
-      REEDCOUNT = REEDCOUNT + 1;   
-      old_val = val;              
-     }
-   
-    else 
-    {
-      old_val = val;
-    }
-
-    // Rain
-    valR = digitalRead(REEDR);
-    
-    if ((valR == LOW) && (old_valR == HIGH)) {
-      delay(100);
-      REEDCOUNTR = REEDCOUNTR + 1;
-      old_valR = valR;
-    }
-    else {
-      old_valR = valR;
-    }
-    
-  }
 }
