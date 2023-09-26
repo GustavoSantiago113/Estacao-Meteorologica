@@ -1,11 +1,13 @@
 // Author: Gustavo Nocera Santiago
 
 // Including Libraries
-#include <AHT10.h>
-#include <Wire.h>
-#include <SD.h>
 #include <SPI.h>
-#include <RTClib.h>
+#include <LoRa.h>
+#include <Wire.h>
+#include <AHT10.h>
+
+// Soil moisture variable
+#define soil A1
 
 // Anemomether variables
 const int REED = 3;
@@ -16,29 +18,22 @@ const float pi = 3.14159265;
 float radius = 0.065;
 float windspeed = 0;
 
-// Temp and Humi Class
-AHT10Class AHT10;
-float temp;
-float umi;
-
-// SD Card Variables
-File myFile;
-const int pinCS = 10;
-
 // Luminosity variables
 #define LDR A0
 int light;
 int energy;
 
-// Clock class
-RTC_DS3231 rtc;
-
 // Pluviomether variables
-const int REEDR = 2;
+const int REEDR = 4;
 int valR = 0;
 int old_valR = 0;
 int REEDCOUNTR = 0;
 float rain = 0.00;
+
+// Temp and Humi Class
+AHT10Class AHT10;
+
+int counter = 0;
 
 void setup(){
   
@@ -49,25 +44,10 @@ void setup(){
 
   // Anemomether
   pinMode(REED, INPUT_PULLUP);
-
-  // SD Card
-  pinMode(pinCS, OUTPUT);
-  if (!SD.begin(8)) {
-    Serial.println("Card failed, or not present");
-    return;
-  }
-  Serial.println("card initialized.");
-
-  // Clock
-  if (! rtc.begin())
-  {
-    Serial.println("Módulo RTC no encontrado!");
-    while(1);
-    
-  }
   
-  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //Upload code once with this line uncommented so the clock is adjusted, then coment this line and upload again
-  
+  // Temp, Humi and Pressure
+  Wire.begin();
+
   // Temp and Humi
   Wire.begin();
 
@@ -77,13 +57,19 @@ void setup(){
   else{
     Serial.println("Init AHT10 Failed!");
   }
+
+  if (!LoRa.begin(915E6)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+  LoRa.setSyncWord(0xF3);
+  LoRa.setTxPower(20);
   
 }
 
 void loop(){
   
-  superDelay(300000);
-  //superDelay(1000);
+  superDelay(5000);
   
   // Anemomether
   windspeed = 2 * pi * REEDCOUNT * 60 * radius * 12 / 1000;
@@ -91,61 +77,36 @@ void loop(){
 
   // Luminosity
   light = analogRead(LDR);
-  energy = map(light, 0, 1023, 0, 100);
-
-  // Temp & Umi
-  umi = AHT10.GetHumidity();
-  temp = AHT10.GetTemperature();
+  energy = map(light, 1023, 0, 0, 100);
 
   // Pluviomether
   rain = REEDCOUNTR / 11.00;
 
-  // Clock
-  DateTime fecha = rtc.now();
-  
-  // Saving everything on SD Card
-  myFile = SD.open("WSKSU.txt", FILE_WRITE);
-  myFile.print(fecha.day());
-  myFile.print("/");
-  myFile.print(fecha.month());
-  myFile.print("/");
-  myFile.print(fecha.year());
-  myFile.print(",");
-  myFile.print(fecha.hour());
-  myFile.print(":");
-  myFile.print(fecha.minute());
-  myFile.print(",");
-  myFile.print(rain);
-  myFile.print(",");
-  myFile.print(windspeed);
-  myFile.print(",");
-  myFile.print(energy);
-  myFile.print(",");
-  myFile.print(umi);
-  myFile.print(",");
-  myFile.println(temp);
-  myFile.close();
-
-  Serial.print(fecha.day());
-  Serial.print("/");
-  Serial.print(fecha.month());
-  Serial.print("/");
-  Serial.print(fecha.year());
-  Serial.print(",");
-  Serial.print(fecha.hour());
-  Serial.print(":");
-  Serial.print(fecha.minute());
-  Serial.print(",");
+  Serial.print("Rain: ");
   Serial.print(rain);
-  Serial.print(",");
+  Serial.print(", ");
+  Serial.print("Wind Speed: ");
   Serial.print(windspeed);
-  Serial.print(",");
+  Serial.print(", ");
+  Serial.print("Luminosity: ");
   Serial.print(energy);
-  Serial.print(",");
-  Serial.print(umi);
-  Serial.print(",");
-  Serial.println(temp);
+  Serial.print(", ");
+  Serial.print("Humidity: ");
+  Serial.print(AHT10.GetHumidity());
+  Serial.print(", ");
+  Serial.print("Temperature: ");
+  Serial.print(AHT10.GetTemperature());
+  Serial.print(", ");
+  Serial.print("Soil moisture: ");
+  Serial.println(analogRead(soil));
+
+  //LoRa.beginPacket();
+  //LoRa.print("Hello world!!");
+  //LoRa.print(counter);
+  //LoRa.endPacket();
   
+  counter++;
+
 }
 
 // Function to make anemomether works while other processes are happening
